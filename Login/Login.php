@@ -22,15 +22,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $eData = file_get_contents("php://input");
     $dData = json_decode($eData, true);
 
+    $error = array();
+
     if ($dData) {
-        if (empty($dData["Email"])) { $response["error"] = "Email is required";
+        if (empty($dData["Email"])) { 
+            $error["Email"] = "Email is required";
+            $response['error'] = $error;
         } else {
             $email = test_input($dData["Email"]);
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $response["error"] = "Invalid email format"; }
+                $error["Email"] = "Invalid email format";
+                $response['error'] = $error; }
             else {
-
-                if(empty($dData["Password"])){ $response["error"] = "Password is required";
+                if(empty($dData["Password"])){ 
+                    $error["Password"] = "Password is required";
+                    $response['error'] = $error;
                 } else {
                     $user = retrieveData($email);
                     $password = test_input($dData["Password"]);
@@ -41,10 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                             $response["data"] = $user;
                             $response["message"] = "User logged in successfully.";
                         } else {
-                            $response["error"] = "Incorrect password.";
+                            $error["Password"] = "Incorrect password.";
+                            $response['error'] = $error;
                         }
                     } else {
-                        $response["error"] = "No user found with this email.";
+                        $error["Email"] = "No user found with this email.";
+                        $response['error'] = $error;
                     }
                 }
 
@@ -53,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     } else {
         $response['data'] = $_POST; // Retrieve POST parameters if JSON decode fails
+        $response['error'] = $error;
     }
 } else {
     // Handle other request methods

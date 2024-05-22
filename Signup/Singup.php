@@ -92,7 +92,9 @@ header("Access-Control-Allow-Headers: *");
                     $response['error'] = $errors;
                 } else {
                     try {
-                        insertData($firstName, $email, $lastName, $password);
+                        insertUser($firstName, $email, $lastName, $password);
+                        unset($user['Password']);
+                        $response["data"] = $user;
                         $response["message"] = "User registered successfully";
                     } catch (PDOException $e) {
                         $response["error"] = "Database error: " . $e->getMessage();
