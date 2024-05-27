@@ -19,8 +19,8 @@ header("Access-Control-Allow-Headers: *");
         $response['error'] = 'None';
 
         // Get the raw POST data
-            $eData = file_get_contents("php://input");
-            $dData = json_decode($eData, true);
+        $eData = file_get_contents("php://input");
+        $dData = json_decode($eData, true);
 
         if ($dData) {
             $errors = array();

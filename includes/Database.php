@@ -180,6 +180,60 @@ try {
         // Fetch user data
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    function updateClassName($id, $className){
+        global $conn;
+
+        // Prepare an SQL statement with placeholders
+        $sql = "UPDATE class SET Class_name = :className WHERE id = :id";
+
+        // Prepare the statement
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameter to the placeholder
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':className', $className);
+
+        $stmt->execute();
+
+        // Fetch user data
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    function updateSection($id, $section){
+        global $conn;
+
+        // Prepare an SQL statement with placeholders
+        $sql = "UPDATE class SET Section = :section WHERE id = :id";
+
+        // Prepare the statement
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameter to the placeholder
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':section', $section);
+
+        $stmt->execute();
+
+        // Fetch user data
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    function updateDescription($id, $description){
+        global $conn;
+
+        // Prepare an SQL statement with placeholders
+        $sql = "UPDATE class SET Description = :description WHERE id = :id";
+
+        // Prepare the statement
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameter to the placeholder
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':description', $description);
+
+        $stmt->execute();
+
+        // Fetch user data
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     function updateLastName($email, $lastName){
         global $conn;
@@ -200,7 +254,7 @@ try {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    function updatePasswordName($email, $password){
+    function updatePassword($email, $password){
         global $conn;
         // Hash the password before storing it
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -234,6 +288,42 @@ try {
 
         // Bind the parameter to the placeholder
         $stmt->bindParam(':email', $email);
+
+        $stmt->execute();
+
+        // Fetch user data
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    function retrieveClassesWithName($className){
+        global $conn;
+
+        // Prepare an SQL statement with placeholders
+        $sql = "SELECT * FROM class  WHERE Class_name = :className";
+
+        // Prepare the statement
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameter to the placeholder
+        $stmt->bindParam(':className', $className);
+
+        $stmt->execute();
+
+        // Fetch user data
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    function retrieveCreatedClassesWithClassName($className){
+        global $conn;
+
+        // Prepare an SQL statement with placeholders
+        $sql = "SELECT * FROM class  WHERE Class_name = :className";
+
+        // Prepare the statement
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameter to the placeholder
+        $stmt->bindParam(':className', $className);
 
         $stmt->execute();
 

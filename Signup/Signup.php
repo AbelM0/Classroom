@@ -19,8 +19,8 @@ header("Access-Control-Allow-Headers: *");
         $response['error'] = 'None';
 
         // Get the raw POST data
-            $eData = file_get_contents("php://input");
-            $dData = json_decode($eData, true);
+        $eData = file_get_contents("php://input");
+        $dData = json_decode($eData, true);
 
         if ($dData) {
             $response['data'] = $dData;
@@ -62,6 +62,7 @@ header("Access-Control-Allow-Headers: *");
                     }
                 }
             }
+
             if (empty($dData["Email"])) {
                 $errors["Email"] = "Email is required";
             } else {
@@ -93,6 +94,7 @@ header("Access-Control-Allow-Headers: *");
                 } else {
                     try {
                         insertUser($firstName, $email, $lastName, $password);
+                        $user = retrieveData($email);
                         unset($user['Password']);
                         $response["data"] = $user;
                         $response["message"] = "User registered successfully";

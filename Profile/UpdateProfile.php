@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $response["error"] = $errors;
         } else {
             if (password_verify($currentPassword, $user['Password'])) {
-                updatePasswordName($email, $newPassword);
+                updatePassword($email, $newPassword);
                 $user = retrieveData($email);
                 unset($user['Password']);
                 $response["data"] =  $user;
