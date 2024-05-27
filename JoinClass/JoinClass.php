@@ -60,13 +60,32 @@ header("Access-Control-Allow-Headers: *");
 
                 if($class){
                   $classId = $class["id"];
-                  try {
-                    insertToClassuser($userId, $classId);
-                    $response["message"] = "Joined class successfully";    
-                    $response["data"] = retrieveJoinedClasses($userId);
-                  } catch (PDOException $e) {
-                      $response["error"] = "Database error: " . $e->getMessage();
+
+                  $joinedClasses = retrieveJoinedClasses($userId);
+                  $alreadyJoined = false;  
+
+                  foreach( $joinedClasses as $joinedClass ){
+                    $id = $joinedClass["id"];
+                    if($classId == $id){
+                        $alreadyJoined = true;
+                        break;
+                    }
                   }
+
+                  if($alreadyJoined){
+                    $error["Class_code"] = "You already have joined this class.";
+                    $response["error"] = $error;
+                  } else {
+                    try {
+                        insertToClassuser($userId, $classId);
+                        $response["message"] = "Joined class successfully";    
+                        $response["data"] = retrieveJoinedClasses($userId);
+                    } catch (PDOException $e) {
+                        $response["error"] = "Database error: " . $e->getMessage();
+                    }
+                  }
+
+                  
                 } else {
                   $response["error"] = "Invalid Class Code or Owners Email";
                 }

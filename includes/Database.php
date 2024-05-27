@@ -33,7 +33,7 @@ try {
     function createClassTable($conn){
         $sql = "CREATE TABLE class (
             id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            Class_name VARCHAR(30) NOT NULL,
+            Class_name VARCHAR(50) NOT NULL,
             Section VARCHAR(30) NOT NULL,
             Subject VARCHAR(50),
             Description VARCHAR(255),
@@ -48,6 +48,32 @@ try {
             id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             userId VARCHAR(30) NOT NULL,
             classId VARCHAR(30) NOT NULL
+            )";
+
+        $conn->exec($sql);
+    }
+
+    function createAnnouncementTable($conn){
+        $sql = "CREATE TABLE Announcement (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            message VARCHAR(255),
+            classId VARCHAR(30) NOT NULL,
+            fileId VARCHAR(30),
+            announcerEmail VARCHAR(50) NOT NULL,
+            fileName VARCHAR(200) NOT NULL,
+            fileType VARCHAR(100) NOT NULL
+            )";
+
+        $conn->exec($sql);
+    }
+
+    function createFileTable($conn){
+        $sql = "CREATE TABLE Files (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            fileName VARCHAR(200) NOT NULL,
+            fileSize INT(11) NOT NULL,
+            fileType VARCHAR(100) NOT NULL,
+            uploadDate TIMESTAMP NOT NULL
             )";
 
         $conn->exec($sql);
@@ -294,6 +320,79 @@ try {
 
         // Execute the statement
         $stmt->execute();
+    }
+
+    function insertToFile($fileName, $fileSize, $fileType){
+        global $conn;
+
+        // Prepare an SQL statement with placeholders
+        $sql = "INSERT INTO files (fileName, fileSize, fileType) VALUES (:fileName, :fileSize, :fileType)";
+
+        // Prepare the statement
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameters to the placeholders
+        $stmt->bindParam(':fileName', $fileName);
+        $stmt->bindParam(':fileSize', $fileSize);
+        $stmt->bindParam(':fileType', $fileType);
+
+        // Execute the statement
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            // If inserted successfully, fetch the last inserted record ID
+            $lastInsertId = $conn->lastInsertId();
+    
+            // Prepare SQL statement to fetch the inserted record
+            $sql = "SELECT * FROM files WHERE id = :id";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':id', $lastInsertId);
+            $stmt->execute();
+    
+            // Fetch the record and return it
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } else {
+            return null;
+        }
+    }
+
+    function insertToAnnouncement($message, $fileId, $fileName, $fileType, $classId, $email){
+        global $conn;
+
+        // Prepare an SQL statement with placeholders
+        $sql = "INSERT INTO announcement (message, classId, fileId, fileType, fileName, announcerEmail) VALUES (:message, :classId, :fileId, :fileType, :fileName, :email)";
+
+        // Prepare the statement
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameters to the placeholders
+        $stmt->bindParam(':message', $message);
+        $stmt->bindParam(':classId', $classId);
+        $stmt->bindParam(':fileId', $fileId);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':fileName', $fileName);
+        $stmt->bindParam(':fileType', $fileType);
+
+        // Execute the statement
+        $stmt->execute();
+    }
+
+    function retrieveClassAnnouncement($classId){
+        global $conn;
+
+        // Prepare an SQL statement with placeholders
+        $sql = "SELECT * FROM announcement  WHERE classId = :classId ";
+
+        // Prepare the statement
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameters to the placeholders
+        $stmt->bindParam(':classId', $classId);
+
+        $stmt->execute();
+
+        // Fetch class data
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     useDB($conn, "classroom");
