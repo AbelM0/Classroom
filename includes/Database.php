@@ -685,6 +685,36 @@ try {
 
 
 
+    function countUsersInClass($classId) {
+        global $conn; // Ensure $conn is accessible
+    
+        try {
+            $stmt = $conn->prepare("SELECT COUNT(*) as user_count FROM classUser WHERE classId = :classId");
+            $stmt->bindParam(':classId', $classId);
+            $stmt->execute();
+    
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['user_count'];
+        } catch (PDOException $e) {
+            return array("error" => $e->getMessage());
+        }
+    }
+
+    function getUsersInClass($classId) {
+        global $conn; // Ensure $conn is accessible
+    
+        try {
+            $stmt = $conn->prepare("SELECT u.* FROM users u INNER JOIN classUser cu ON u.id = cu.userId WHERE cu.classId = :classId");
+            $stmt->bindParam(':classId', $classId);
+            $stmt->execute();
+    
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        } catch (PDOException $e) {
+            return array("error" => $e->getMessage());
+        }
+    }
+    
 
 
 
