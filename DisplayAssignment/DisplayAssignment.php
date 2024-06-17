@@ -19,14 +19,14 @@ header("Access-Control-Allow-Headers: *");
         $classId = isset($_GET['classId']) ? test_input($_GET['classId']) : null;
 
         if ($classId) {
-            $announcements = retrieveClassAnnouncement($classId);
+            $assignments = retrieveClassAssignments($classId);
     
-            foreach ($announcements as &$announcement) {
-                $unformattedDate = $announcement['uploadDate'];
-                $announcement['uploadDate'] = timeAgo($unformattedDate);
+            foreach ($assignments as &$assignment) {
+                $unformattedDate = $assignment['uploadDate'];
+                $assignment['uploadDate'] = timeAgo($unformattedDate);
             }
     
-            $response["announcements"] = $announcements;
+            $response["assignments"] = $assignments;
         } else {
             $response['error'] = "classId parameter is missing";
         }

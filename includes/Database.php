@@ -61,7 +61,8 @@ try {
             fileId VARCHAR(30),
             announcerEmail VARCHAR(50) NOT NULL,
             fileName VARCHAR(200) NOT NULL,
-            fileType VARCHAR(100) NOT NULL
+            fileType VARCHAR(100) NOT NULL,
+            uploadDate TIMESTAMP NOT NULL
             )";
 
         $conn->exec($sql);
@@ -74,6 +75,77 @@ try {
             fileSize INT(11) NOT NULL,
             fileType VARCHAR(100) NOT NULL,
             uploadDate TIMESTAMP NOT NULL
+            )";
+
+        $conn->exec($sql);
+    }
+
+    function createAssignmentTable($conn){
+        $sql = "CREATE TABLE assignment (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            message VARCHAR(255),
+            classId VARCHAR(30) NOT NULL,
+            fileId VARCHAR(30),
+            Email VARCHAR(50) NOT NULL,
+            fileName VARCHAR(200) NOT NULL,
+            fileType VARCHAR(100) NOT NULL,
+            submissionDate VARCHAR(100) NOT NULL,
+            uploadDate TIMESTAMP NOT NULL
+            )";
+
+        $conn->exec($sql);
+    }
+    function createAssignmentSubmissionsTable($conn){
+        $sql = "CREATE TABLE assignmentSubmissions (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            studentId VARCHAR(30) NOT NULL,
+            assignmentId VARCHAR(30) NOT NULL,
+            submissionDate VARCHAR(100) NOT NULL,
+            submission VARCHAR(100) NOT NULL,
+            grade VARCHAR(100) NOT NULL,
+            uploadDate TIMESTAMP NOT NULL
+            )";
+
+        $conn->exec($sql);
+    }
+
+    function createTestTable($conn){
+        $sql = "CREATE TABLE test (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            classId VARCHAR(30) NOT NULL,
+            testName VARCHAR(30) NOT NULL,
+            testDuration VARCHAR(30) NOT NULL,
+            testStartTime VARCHAR(30) NOT NULL
+            )";
+
+        $conn->exec($sql);
+    }
+    function createTestSubmissionsTable($conn){
+        $sql = "CREATE TABLE testSubmissions (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            studentId VARCHAR(30) NOT NULL,
+            testId VARCHAR(30) NOT NULL,
+            score VARCHAR(30) NOT NULL
+            )";
+
+        $conn->exec($sql);
+    }
+    function createQuestionsTable($conn){
+        $sql = "CREATE TABLE question (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            testId VARCHAR(30) NOT NULL,
+            questionText VARCHAR(230) NOT NULL,
+            answerId VARCHAR(30) NOT NULL
+            )";
+
+        $conn->exec($sql);
+    }
+    function createAnswersTable($conn){
+        $sql = "CREATE TABLE answer (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            questionId VARCHAR(30) NOT NULL,
+            answerText VARCHAR(230) NOT NULL,
+            correct TINYINT(1) NOT NULL
             )";
 
         $conn->exec($sql);
@@ -467,6 +539,28 @@ try {
         $stmt->execute();
     }
 
+    function insertToAssignments($message, $fileId, $fileName, $fileType, $classId, $email, $submissionDate){
+        global $conn;
+
+        // Prepare an SQL statement with placeholders
+        $sql = "INSERT INTO assignment (message, classId, fileId, fileType, fileName, Email, submissionDate) VALUES (:message, :classId, :fileId, :fileType, :fileName, :email, :submissionDate)";
+
+        // Prepare the statement
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameters to the placeholders
+        $stmt->bindParam(':message', $message);
+        $stmt->bindParam(':classId', $classId);
+        $stmt->bindParam(':fileId', $fileId);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':fileName', $fileName);
+        $stmt->bindParam(':fileType', $fileType);
+        $stmt->bindParam(':submissionDate', $submissionDate);
+
+        // Execute the statement
+        $stmt->execute();
+    }
+
     function retrieveClassAnnouncement($classId){
         global $conn;
 
@@ -484,6 +578,92 @@ try {
         // Fetch class data
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    function retrieveClassAssignments($classId){
+        global $conn;
+
+        // Prepare an SQL statement with placeholders
+        $sql = "SELECT * FROM assignmet  WHERE classId = :classId ";
+
+        // Prepare the statement
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameters to the placeholders
+        $stmt->bindParam(':classId', $classId);
+
+        $stmt->execute();
+
+        // Fetch class data
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    function getTestsByClassId($classId) {
+        global $conn;     
+    
+        $sql = "SELECT * FROM test WHERE classId = :classId";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':classId', $classId);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    }
+
+    function getQuestionsAndAnswersByTestID($testId) {
+        global $conn;
+
+        $sql = "SELECT * FROM question WHERE testId = :testId";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':testId', $testId);
+        $stmt->execute();
+        $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $result = [];
+        foreach ($questions as $question) {
+            $sql = "SELECT * FROM answer WHERE questionId = :questionId";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':questionId', $question['id']);
+            $stmt->execute();
+            $answers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $result[] = [
+                'id' => $question['id'],
+                'question' => $question['questionText'],
+                'answers' => $answers
+            ];
+        }
+        return json_encode($result);
+    }
+
+
+    function insertTestSubmission($studentId, $testId, $submission) {
+        
+        global $conn;
+
+        $score = 0;
+        foreach ($submission as $questionId => $answerId) {
+            $sql = "SELECT Correct FROM Answers WHERE AnswerID = :answerID";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':answerId', $answerId);
+            $stmt->execute();
+            $correct = $stmt->fetchColumn();
+            if ($correct) {
+                $score++;
+            }
+        }
+
+        $sql = "INSERT INTO testsubmission (studentId, testId, score) VALUES (:studentId, :testId, :score)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':studentId', $studentId);
+        $stmt->bindParam(':testId', $testId);
+        $stmt->bindParam(':score', $score);
+        $stmt->execute();
+
+       
+    }
+
+
+
+
+
 
     useDB($conn, "classroom");
 } catch (PDOException $e){

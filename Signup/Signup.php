@@ -4,6 +4,7 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 
     include "../includes/Database.php";
+    include "../Email/sendWelcomeEmail.php";
 
     $response = array();
 
@@ -98,6 +99,7 @@ header("Access-Control-Allow-Headers: *");
                         unset($user['Password']);
                         $response["data"] = $user;
                         $response["message"] = "User registered successfully";
+                        sendWelcomeEmailTo($email, $firstName);
                     } catch (PDOException $e) {
                         $response["error"] = "Database error: " . $e->getMessage();
                     }
