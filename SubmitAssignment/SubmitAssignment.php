@@ -13,7 +13,9 @@ header("Access-Control-Allow-Headers: *");
         $response['message'] = 'Received a GET request';
         $response['data'] = $_GET; // Retrieve GET parameters 
         $response['error'] = "None";
-      
+        
+        // $eData = file_get_contents("php://input");
+        // $dData = json_decode($eData, true);
 
     } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle POST request
@@ -21,38 +23,18 @@ header("Access-Control-Allow-Headers: *");
         $response['message'] = 'Received a POST request';
         $response['error'] = 'None';
 
-        // Check if a file was uploaded without errors
-    if (isset($_FILES["file"]) && $_FILES["file"]["error"] == 0) {
-      $target_dir = "uploads/";
-      $target_file = $target_dir . basename($_FILES["file"]["name"]);
-      $file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        $eData = file_get_contents("php://input");
+        $dData = json_decode($eData, true);
 
-      // Check if the file is allowed 
-      $allowed_types = array("pdf", "txt", "pptx", "docx");
-      if (!in_array($file_type, $allowed_types)) {
-           $response["error"] = "Sorry, only JPG, JPEG, PNG, GIF, and PDF files are allowed.";
-      } else {
-          // Move the uploaded file to the specified directory
-          if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
-              // File upload success, now store information in the database
-              $fileName = $_FILES["file"]["name"];
-              $fileSize = $_FILES["file"]["size"];
-              $fileType = $_FILES["file"]["type"];
+        $message = test_input($dData["message"]);
+        $fileId = test_input($dData["fileId"]);
+        $fileName = test_input($dData["fileName"]);
+        $fileType = test_input($dData["fileType"]);
+        $classId = test_input($dData["classId"]);
+        $email = test_input($dData["Email"]);
 
-              // Insert the file information into the database
-              $file = insertToFile($fileName, $fileSize, $fileType);
-              $response["fileId"] = $file["id"];
-              $response["fileName"] = $file["fileName"];
-              $response["fileType"] = $file["fileType"];
-          } else {
-            $response["error"] = "Sorry, there was an error uploading your file.";
-          }
-      } 
-
-    } else {
-      $response["error"] = "No file was uploaded.";
-    }
-
+        insertToAssignmentSubmission($message, $fileId, $fileName, $fileType, $classId, $email);
+        $response["announcements"] = retrieveClassAnnouncement($classId);
     } else {
         // Handle other request methods
         $response['method'] = $_SERVER['REQUEST_METHOD'];

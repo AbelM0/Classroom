@@ -27,6 +27,7 @@ header("Access-Control-Allow-Headers: *");
         $dData = json_decode($eData, true);
 
         $message = test_input($dData["message"]);
+        $assignmentName = test_input($dData["assignmentName"]);
         $fileId = test_input($dData["fileId"]);
         $fileName = test_input($dData["fileName"]);
         $fileType = test_input($dData["fileType"]);
@@ -34,7 +35,7 @@ header("Access-Control-Allow-Headers: *");
         $email = test_input($dData["Email"]);
         $submissionDate = test_input($dData["submissionDate"]);
 
-        insertToAssignments($message, $fileId, $fileName, $fileType, $classId, $email, $submissionDate) ;
+        insertToAssignments($message, $assignmentName, $fileId, $fileName, $fileType, $classId, $email, $submissionDate) ;
         $response["assignments"] = retrieveClassAssignments($classId);
     } else {
         // Handle other request methods

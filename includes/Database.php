@@ -539,11 +539,11 @@ try {
         $stmt->execute();
     }
 
-    function insertToAssignments($message, $fileId, $fileName, $fileType, $classId, $email, $submissionDate){
+    function insertToAssignments($message, $assignmentName, $fileId, $fileName, $fileType, $classId, $email, $submissionDate){
         global $conn;
 
         // Prepare an SQL statement with placeholders
-        $sql = "INSERT INTO assignment (message, classId, fileId, fileType, fileName, Email, submissionDate) VALUES (:message, :classId, :fileId, :fileType, :fileName, :email, :submissionDate)";
+        $sql = "INSERT INTO assignment (message, assignmentName, classId, fileId, fileType, fileName, Email, submissionDate) VALUES (:message, :assignmentName, :classId, :fileId, :fileType, :fileName, :email, :submissionDate)";
 
         // Prepare the statement
         $stmt = $conn->prepare($sql);
@@ -556,6 +556,29 @@ try {
         $stmt->bindParam(':fileName', $fileName);
         $stmt->bindParam(':fileType', $fileType);
         $stmt->bindParam(':submissionDate', $submissionDate);
+        $stmt->bindParam(':assignmentName', $assignmentName);
+
+        // Execute the statement
+        $stmt->execute();
+    }
+    function insertToAssignmentSubmission($studentId, $assignmentId, $submissionDate, $fileName, $fileType, $classId, $email){
+        global $conn;
+
+        // Prepare an SQL statement with placeholders
+        $sql = "INSERT INTO assignment (message, assignmentName, classId, fileId, fileType, fileName, Email, submissionDate) VALUES (:message, :assignmentName, :classId, :fileId, :fileType, :fileName, :email, :submissionDate)";
+
+        // Prepare the statement
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameters to the placeholders
+        $stmt->bindParam(':message', $message);
+        $stmt->bindParam(':classId', $classId);
+        $stmt->bindParam(':fileId', $fileId);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':fileName', $fileName);
+        $stmt->bindParam(':fileType', $fileType);
+        $stmt->bindParam(':submissionDate', $submissionDate);
+        $stmt->bindParam(':assignmentName', $assignmentName);
 
         // Execute the statement
         $stmt->execute();
@@ -582,7 +605,7 @@ try {
         global $conn;
 
         // Prepare an SQL statement with placeholders
-        $sql = "SELECT * FROM assignmet  WHERE classId = :classId ";
+        $sql = "SELECT * FROM assignment  WHERE classId = :classId ";
 
         // Prepare the statement
         $stmt = $conn->prepare($sql);
